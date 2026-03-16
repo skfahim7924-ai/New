@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যানিমেটেড স্নেক গেম</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle, #1a1a2e, #16213e);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            text-align: center;
+        }
+
+        canvas {
+            border: 5px solid #0f3460;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            background-color: #000;
+            border-radius: 10px;
+        }
+
+        .stats {
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-shadow: 2px 2px #e94560;
+        }
+
+        /* অ্যানিমেশন ইফেক্ট */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0f3460;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="stats">স্কোর: <span id="score">0</span></div>
+    <canvas id="snakeGame" width="400" height="400"></canvas>
+    
+    <div id="game-over" class="game-over">
+        <h1>গেম ওভার!</h1>
+        <p>আপনার স্কোর: <span id="final-score">0</span></p>
+        <button onclick="resetGame()">আবার খেলুন</button>
+    </div>
+</div>
+
+<audio id="eatSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="deadSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+    const canvas = document.getElementById("snakeGame");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+    const gameOverScreen = document.getElementById("game-over");
+    const finalScoreElement = document.getElementById("final-score");
+    const eatSound = document.getElementById("eatSound");
+    const deadSound = document.getElementById("deadSound");
+
+    const box = 20;
+    let score = 0;
+    let game;
+
+    let snake = [{ x: 9 * box, y: 10 * box }];
+    let food = {
+        x: Math.floor(Math.random() * 19 + 1) * box,
+        y: Math.floor(Math.random() * 19 + 1) * box
+    };
+
+    let d;
+
+    document.addEventListener("keydown", direction);
+
+    function direction(event) {
+        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
+
+    function collision(head, array) {
+        for(let i = 0; i < array.length; i++) {
+            if(head.x == array[i].x && head.y == array[i].y) return true;
+        }
+        return false;
+    }
+
+    function draw() {
+        // ব্যাকগ্রাউন্ড গ্রিড ডিজাইন
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for(let i = 0; i < snake.length; i++) {
+            // সাপের মাথা এবং শরীরের আলাদা রঙ ও ডিজাইন
+            ctx.fillStyle = (i == 0) ? "#00ff41" : "#008f11";
+            ctx.strokeStyle = "#000";
+            ctx.beginPath();
+            ctx.roundRect(snake[i].x, snake[i].y, box, box, [5]);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // খাবারের গ্লোয়িং অ্যানিমেশন
+        ctx.fillStyle = "#e94560";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "red";
+        ctx.beginPath();
+        ctx.arc(food.x + box/2, food.y + box/2, box/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0; // শ্যাডো রিসেট
+
+        let snakeX = snake[0].x;
+        let snakeY = snake[0].y;
+
+        if( d == "LEFT") snakeX -= box;
+        if( d == "UP") snakeY -= box;
+        if( d == "RIGHT") snakeX += box;
+        if( d == "DOWN") snakeY += box;
+
+        // খাবার খেলে কি হবে
+        if(snakeX == food.x && snakeY == food.y) {
+            score++;
+            scoreElement.innerHTML = score;
+            eatSound.play();
+            food = {
+                x: Math.floor(Math.random() * 19 + 1) * box,
+                y: Math.floor(Math.random() * 19 + 1) * box
+            };
+        } else {
+            snake.pop();
+        }
+
+        let newHead = { x: snakeX, y: snakeY };
+
+        // গেম ওভার কন্ডিশন
+        if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+            clearInterval(game);
+            deadSound.play();
+            finalScoreElement.innerHTML = score;
+            gameOverScreen.style.display = "block";
+        }
+
+        snake.unshift(newHead);
+    }
+
+    function resetGame() {
+        score = 0;
+        scoreElement.innerHTML = score;
+        snake = [{ x: 9 * box, y: 10 * box }];
+        d = undefined;
+        gameOverScreen.style.display = "none";
+        food = {
+            x: Math.floor(Math.random() * 19 + 1) * box,
+            y: Math.floor(Math.random() * 19 + 1) * box
+        };
+        game = setInterval(draw, 100);
+    }
+
+    // গেম শুরু
+    game = setInterval(draw, 100);
+
+</script>
+</body>
+</html>
