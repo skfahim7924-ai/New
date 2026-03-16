@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Project Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            text-decoration: none;
+            color: white;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .snake-btn { background-color: #4CAF50; }
+        .snake-btn:hover { background-color: #45a049; }
+        
+        .social-btn { background-color: #0084ff; }
+        .social-btn:hover { background-color: #0073e6; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome to My Projects</h1>
+        <p>নিচের বাটন থেকে আপনার পছন্দের প্রজেক্টটি ওপেন করুন:</p>
+        
+        <div class="btn-group">
+            <a href="snake.html" class="btn snake-btn">Snake Game</a>
+            
+            <a href="social.html" class="btn social-btn">Social Media UI</a>
+        </div>
+    </div>
+
+</body>
+</html>
