@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Premium | Advanced Social Media UI</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- Advanced CSS Variables (Root) --- */
+        :root {
+            --fb-blue: #1877f2;
+            --fb-bg: #f0f2f5;
+            --fb-white: #ffffff;
+            --fb-black: #1c1e21;
+            --fb-gray: #65676b;
+            --fb-border: #dddfe2;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,.1);
+            --shadow-lg: 0 12px 28px rgba(0,0,0,0.2);
+        }
+
+        .dark-theme {
+            --fb-bg: #18191a;
+            --fb-white: #242526;
+            --fb-black: #e4e6eb;
+            --fb-gray: #b0b3b8;
+            --fb-border: #3e4042;
+        }
+
+        /* --- Global Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', 'Hind Siliguri', sans-serif; background-color: var(--fb-bg); color: var(--fb-black); transition: var(--transition); overflow-x: hidden; }
+        ul { list-style: none; }
+        button { cursor: pointer; border: none; outline: none; background: none; transition: var(--transition); }
+
+        /* --- Header / Navigation --- */
+        .nexus-header {
+            background: var(--fb-white); height: 62px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: var(--shadow-sm);
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .search-box { background: var(--fb-bg); padding: 10px 15px; border-radius: 50px; display: flex; align-items: center; gap: 8px; }
+        .search-box input { border: none; background: transparent; outline: none; color: var(--fb-black); width: 200px; }
+
+        .header-center { display: flex; gap: 5px; height: 100%; }
+        .nav-btn { width: 100px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--fb-gray); border-bottom: 3px solid transparent; }
+        .nav-btn:hover { background: var(--fb-bg); border-radius: 8px; }
+        .nav-btn.active { color: var(--fb-blue); border-bottom-color: var(--fb-blue); }
+
+        /* --- Main Layout Grid --- */
+        .nexus-wrapper { display: grid; grid-template-columns: 280px 1fr 280px; gap: 32px; padding: 80px 20px 20px; max-width: 1400px; margin: 0 auto; }
+
+        /* --- Sidebar Styles --- */
+        .sidebar { position: sticky; top: 80px; height: calc(100vh - 100px); overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; font-weight: 500; color: var(--fb-black); text-decoration: none; }
+        .sidebar-item:hover { background: rgba(0,0,0,0.05); }
+        .sidebar-item i { font-size: 20px; color: var(--fb-blue); }
+
+        /* --- Feed Area --- */
+        .feed-container { max-width: 680px; margin: 0 auto; width: 100%; }
+
+        /* Post Composer */
+        .composer { background: var(--fb-white); border-radius: 10px; padding: 15px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+        .composer-top { display: flex; gap: 10px; border-bottom: 1px solid var(--fb-border); padding-bottom: 15px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+        .composer-input { width: 100%; background: var(--fb-bg); border-radius: 25px; padding: 10px 20px; color: var(--fb-gray); cursor: pointer; }
+        .composer-bottom { display: flex; justify-content: space-around; padding-top: 10px; }
+        .action-btn { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; color: var(--fb-gray); font-weight: 600; }
+        .action-btn:hover { background: var(--fb-bg); }
+
+        /* Post Card */
+        .post-card { background: var(--fb-white); border-radius: 10px; padding: 15px; box-shadow: var(--shadow-sm); margin-bottom: 20px; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .post-info { display: flex; gap: 10px; }
+        .post-content { margin-bottom: 15px; line-height: 1.5; }
+        .post-stats { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--fb-border); color: var(--fb-gray); font-size: 14px; }
+        
+        /* --- Right Section --- */
+        .contacts-panel { background: var(--fb-white); border-radius: 10px; padding: 15px; box-shadow: var(--shadow-sm); position: sticky; top: 80px; }
+        .contact-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; position: relative; }
+        .online-dot { width: 12px; height: 12px; background: #31a24c; border: 2px solid white; border-radius: 50%; position: absolute; left: 38px; bottom: 10px; }
+
+        /* --- Page Systems --- */
+        .page-content { display: none; }
+        .page-content.active { display: block; }
+
+        /* --- Custom Modal --- */
+        #postModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-body { background: var(--fb-white); width: 500px; border-radius: 10px; box-shadow: var(--shadow-lg); padding: 20px; }
+        .modal-textarea { width: 100%; height: 150px; border: none; resize: none; font-size: 18px; outline: none; background: transparent; color: var(--fb-black); }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 1100px) { .nexus-wrapper { grid-template-columns: 1fr 300px; } .sidebar { display: none; } }
+        @media (max-width: 768px) { .nexus-wrapper { grid-template-columns: 1fr; } .contacts-panel { display: none; } .search-box input { width: 0; padding: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <header class="nexus-header">
+        <div class="header-left">
+            <h1 style="color: var(--fb-blue); font-size: 32px;"><i class="fab fa-facebook-messenger"></i></h1>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Nexus এ খুঁজুন...">
+            </div>
+        </div>
+        
+        <nav class="header-center">
+            <button class="nav-btn active" onclick="switchPage('home', this)"><i class="fas fa-home"></i></button>
+            <button class="nav-btn" onclick="switchPage('video', this)"><i class="fas fa-play-circle"></i></button>
+            <button class="nav-btn" onclick="switchPage('profile', this)"><i class="fas fa-user-circle"></i></button>
+            <button class="nav-btn" onclick="switchPage('settings', this)"><i class="fas fa-cog"></i></button>
+        </nav>
+
+        <div class="header-right" style="display: flex; gap: 10px;">
+            <button class="action-btn" onclick="toggleTheme()" style="background: var(--fb-bg); border-radius: 50%; width: 40px; height: 40px;"><i class="fas fa-moon"></i></button>
+            <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=9') center/cover;"></div>
+        </div>
+    </header>
+
+    <div class="nexus-wrapper">
+        
+        <aside class="sidebar">
+            <a href="#" class="sidebar-item"><i class="fas fa-user-friends"></i> বন্ধুরা</a>
+            <a href="#" class="sidebar-item"><i class="fas fa-users"></i> গ্রুপ</a>
+            <a href="#" class="sidebar-item"><i class="fas fa-store"></i> মার্কেটপ্লেস</a>
+            <a href="#" class="sidebar-item"><i class="fas fa-clock"></i> স্মৃতিসমূহ</a>
+            <a href="#" class="sidebar-item"><i class="fas fa-bookmark"></i> সেভ করা</a>
+            <a href="#" class="sidebar-item"><i class="fas fa-flag"></i> পেজ</a>
+            <hr style="margin: 10px 0; border: 0; border-top: 1px solid var(--fb-border);">
+            <p style="padding: 10px; color: var(--fb-gray); font-size: 14px;">আপনার শর্টকাট</p>
+            <a href="#" class="sidebar-item"><i class="fas fa-gamepad"></i> গেমিং</a>
+        </aside>
+
+        <main class="feed-area">
+            
+            <div id="home" class="page-content active">
+                <div class="composer">
+                    <div class="composer-top">
+                        <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=9') center/cover;"></div>
+                        <div class="composer-input" onclick="openModal()">আপনার মনে কি আছে?</div>
+                    </div>
+                    <div class="composer-bottom">
+                        <button class="action-btn"><i class="fas fa-video" style="color: #f3425f;"></i> লাইভ ভিডিও</button>
+                        <button class="action-btn"><i class="fas fa-images" style="color: #45bd62;"></i> ফটো/ভিডিও</button>
+                        <button class="action-btn"><i class="fas fa-smile" style="color: #f7b928;"></i> অনুভূতি</button>
+                    </div>
+                </div>
+
+                <div id="dynamic-posts">
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="post-info">
+                                <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=1') center/cover;"></div>
+                                <div>
+                                    <h4 style="font-size: 15px;">তানভীর হাসান</h4>
+                                    <small style="color: var(--fb-gray);">১০ মিনিট আগে • <i class="fas fa-globe-americas"></i></small>
+                                </div>
+                            </div>
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <div class="post-content">
+                            আজ আমি আমার নতুন পোর্টফোলিও ওয়েবসাইট লঞ্চ করলাম! সবাই দোয়া করবেন। 😊
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80" style="width: 100%; border-radius: 8px;" alt="Post">
+                        <div class="post-stats">
+                            <span><i class="fas fa-thumbs-up" style="color: var(--fb-blue);"></i> ৬৫ জন</span>
+                            <span>১২টি কমেন্ট • ৩টি শেয়ার</span>
+                        </div>
+                        <div class="composer-bottom">
+                            <button class="action-btn"><i class="far fa-thumbs-up"></i> লাইক</button>
+                            <button class="action-btn"><i class="far fa-comment"></i> কমেন্ট</button>
+                            <button class="action-btn"><i class="far fa-share-square"></i> শেয়ার</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile" class="page-content">
+                <div class="post-card" style="text-align: center; padding: 40px;">
+                    <div class="avatar" style="width: 120px; height: 120px; margin: 0 auto 20px; background: url('https://i.pravatar.cc/100?u=9') center/cover; border: 4px solid var(--fb-blue);"></div>
+                    <h1>আপনার প্রোফাইল নাম</h1>
+                    <p style="color: var(--fb-gray); margin-bottom: 20px;">Web Developer & Designer</p>
+                    <button class="btn-primary" style="background: var(--fb-blue); color: white; padding: 10px 30px; border-radius: 5px; font-weight: bold;">এডিট প্রোফাইল</button>
+                </div>
+            </div>
+
+            <div id="settings" class="page-content">
+                <div class="post-card">
+                    <h2>অ্যাকাউন্ট সেটিংস</h2>
+                    <div class="sidebar-item"><i class="fas fa-lock"></i> প্রাইভেসি চেকআপ</div>
+                    <div class="sidebar-item"><i class="fas fa-user-shield"></i> পাসওয়ার্ড ও নিরাপত্তা</div>
+                    <div class="sidebar-item"><i class="fas fa-bell"></i> নোটিফিকেশন সেটিংস</div>
+                </div>
+            </div>
+
+        </main>
+
+        <aside class="contacts-panel">
+            <h4 style="color: var(--fb-gray); margin-bottom: 15px;">অনলাইন পরিচিতি</h4>
+            <div class="contact-item">
+                <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=12') center/cover;"></div>
+                <div class="online-dot"></div>
+                <span>জাহিদ হাসান</span>
+            </div>
+            <div class="contact-item">
+                <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=15') center/cover;"></div>
+                <div class="online-dot"></div>
+                <span>সাদিয়া চৌধুরী</span>
+            </div>
+            <div class="contact-item">
+                <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=22') center/cover;"></div>
+                <div class="online-dot"></div>
+                <span>রাকিবুল ইসলাম</span>
+            </div>
+        </aside>
+
+    </div>
+
+    <div id="postModal">
+        <div class="modal-body">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--fb-border); padding-bottom: 10px;">
+                <h3>পোস্ট তৈরি করুন</h3>
+                <button onclick="closeModal()" style="font-size: 20px;">&times;</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=9') center/cover;"></div>
+                <div><strong>আপনার নাম</strong><br><small>Public</small></div>
+            </div>
+            <textarea id="postText" class="modal-textarea" placeholder="আপনার মনে কি আছে?"></textarea>
+            <button onclick="addNewPost()" style="width: 100%; background: var(--fb-blue); color: white; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px;">পোস্ট করুন</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Page Navigation System ---
+        function switchPage(pageId, btn) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Show target page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Handle active button state
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            window.scrollTo(0,0);
+        }
+
+        // --- Theme Toggle System ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const icon = document.querySelector('.header-right i');
+            if(document.body.classList.contains('dark-theme')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        // --- Post Creation System ---
+        function openModal() {
+            document.getElementById('postModal').style.display = 'flex';
+            document.getElementById('postText').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('postModal').style.display = 'none';
+        }
+
+        function addNewPost() {
+            const text = document.getElementById('postText').value;
+            if(!text.trim()) return;
+
+            const postContainer = document.getElementById('dynamic-posts');
+            const newPost = document.createElement('div');
+            newPost.className = 'post-card';
+            newPost.innerHTML = `
+                <div class="post-header">
+                    <div class="post-info">
+                        <div class="avatar" style="background: url('https://i.pravatar.cc/100?u=9') center/cover;"></div>
+                        <div>
+                            <h4 style="font-size: 15px;">আপনার নাম</h4>
+                            <small style="color: var(--fb-gray);">এই মাত্র • <i class="fas fa-globe-americas"></i></small>
+                        </div>
+                    </div>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="post-content">${text}</div>
+                <div class="post-stats">
+                    <span><i class="fas fa-thumbs-up" style="color: var(--fb-blue);"></i> ০ জন</span>
+                    <span>০টি কমেন্ট • ০টি শেয়ার</span>
+                </div>
+                <div class="composer-bottom">
+                    <button class="action-btn"><i class="far fa-thumbs-up"></i> লাইক</button>
+                    <button class="action-btn"><i class="far fa-comment"></i> কমেন্ট</button>
+                    <button class="action-btn"><i class="far fa-share-square"></i> শেয়ার</button>
+                </div>
+            `;
+            
+            postContainer.prepend(newPost);
+            document.getElementById('postText').value = '';
+            closeModal();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('postModal');
+            if (event.target == modal) closeModal();
+        }
+    </script>
+</body>
+</html>
